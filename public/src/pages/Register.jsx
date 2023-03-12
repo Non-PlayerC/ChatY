@@ -11,78 +11,84 @@ import 'react-toastify/dist/ReactToastify.css';
 import { registerRoute } from '../utils/APIRouter';
 
 function Register() {
-    const [values, setValues] = useState({
-        username: "",
-        email: "",
-        password: "",
-        confirmPassword: "",
-    });
-    const toastOptions = {
-        position: "bottom-right",
-        autoClose: 8080,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark"
+  const [values, setValues] = useState({
+    // 声明一个state（状态）变量values，以及一个用于更新state的函数setValues
+    username: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const toastOptions = {
+    // 配置react-toastify（一个Toast组件库）的一些参数
+    position: "bottom-right",
+    autoClose: 8080,
+    pauseOnHover: true,
+    draggable: true,
+    theme: "dark"
+  }
+
+  // 它通过调用 event.preventDefault() 阻止表单默认的提交行为，然后通过 handleValidation() 方法来验证表单数据是否合法。
+  // 如果数据合法，它会从 values 对象中取出 email、username 和 password 等字段，然后通过调用 axios.post() 方法向服务器发起一个 POST 请求，
+  // 请求的地址是 registerRoute 变量所指定的 API 路径。
+  // 请求中包含了用户填写的注册信息。请求完成后，响应数据存储在 data 变量中，这里没有处理响应数据，可以根据具体需求进行处理。
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    if (handleValidation()) {
+      console.log("*** ", registerRoute);
+      const { email, username, password } = values;
+      const { data } = await axios.post(registerRoute, {
+        username,
+        email,
+        password,
+      });
+    }
+  };
+
+  const handleValidation = () => {
+    const { password, confirmPassword, username, email } = values;
+    if (password !== confirmPassword) {
+      toast.error("password and confirm password should be same", toastOptions);
+      return false;
+    } else if (username.length < 3) {
+      toast.error("username should be greater than 3 characters", toastOptions);
+      return false;
+    } else if (password.length < 8) {
+      toast.error(
+        "Password should be equal or greater than 8 characters.",
+        toastOptions
+      );
+      return false;
+    } else if (email === "") {
+      toast.error("Email is required.", toastOptions);
+      return false;
     }
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-        if (handleValidation()) {
-            console.log("*** ", registerRoute);
-            const { email, username, password } = values;
-            const { data } = await axios.post(registerRoute, {
-                username,
-                email,
-                password,
-            });
-        }
-    };
+    return true;
+  };
 
-    const handleValidation = () => {
-        const { password, confirmPassword, username, email } = values;
-        if (password !== confirmPassword) {
-            toast.error("password and confirm password should be same", toastOptions);
-            return false;
-        } else if (username.length < 3) {
-            toast.error("username should be greater than 3 characters", toastOptions);
-            return false;
-        } else if (password.length < 8) {
-            toast.error(
-                "Password should be equal or greater than 8 characters.",
-                toastOptions
-            );
-            return false;
-        } else if (email === "") {
-            toast.error("Email is required.", toastOptions);
-            return false;
-        }
+  const handleChange = (event) => {
+    setValues({ ...values, [event.target.name]: event.target.value });
+  };
 
-        return true;
-    };
-
-    const handleChange = (event) => {
-        setValues({ ...values, [event.target.name]: event.target.value });
-    };
-
-    return (
-        <>
-            <FormContainer>
-                <form onSubmit={(event) => handleSubmit(event)}>
-                    <div className="brand">
-                        <img src={Logo} alt="logo" />
-                        <h1>snappy</h1>
-                    </div>
-                    <input type="text" placeholder='Username' name="username" onChange={handleChange} />
-                    <input type="email" placeholder='Email' name="email" onChange={handleChange} />
-                    <input type="password" placeholder='Password' name="password" onChange={handleChange} />
-                    <input type="password" placeholder='Confirm Password' name="confirmPassword" onChange={handleChange} />
-                    <button type='submit'>Create User</button>
-                    <span>Already have an account ? <Link to="/login">Login</Link></span>
-                </form>
-            </FormContainer>
-            <ToastContainer />
-        </>
-    )
+  return (
+    <>
+      <FormContainer>
+        <form onSubmit={(event) => handleSubmit(event)}>
+          <div className="brand">
+            <img src={Logo} alt="logo" />
+            <h1>snappy</h1>
+          </div>
+          <input type="text" placeholder='Username' name="username" onChange={handleChange} />
+          <input type="email" placeholder='Email' name="email" onChange={handleChange} />
+          <input type="password" placeholder='Password' name="password" onChange={handleChange} />
+          <input type="password" placeholder='Confirm Password' name="confirmPassword" onChange={handleChange} />
+          <button type='submit'>Create User</button>
+          <span>Already have an account ? <Link to="/login">Login</Link></span>
+        </form>
+      </FormContainer>
+      <ToastContainer />
+    </>
+  )
 }
 
 const FormContainer = styled.div`
