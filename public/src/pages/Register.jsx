@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import Logo from "../assets/logo.svg";
 import { ToastContainer, toast } from 'react-toastify';
@@ -11,6 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { registerRoute } from '../utils/APIRouter';
 
 function Register() {
+  const navigate = useNavigate()
   const [values, setValues] = useState({
     // 声明一个state（状态）变量values，以及一个用于更新state的函数setValues
     username: "",
@@ -34,13 +35,20 @@ function Register() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (handleValidation()) {
-      console.log("*** ", registerRoute);
+      console.log("in validation @", registerRoute);
       const { email, username, password } = values;
       const { data } = await axios.post(registerRoute, {
         username,
         email,
         password,
       });
+      if (data.status === false) {
+        toast.error(data.msg, toastOptions)
+      }
+      if (data.status === true) {
+        localStorage.setItem("chat-app-ser", JSON.stringify(data.user));
+        navigate("/");
+      }
     }
   };
 
